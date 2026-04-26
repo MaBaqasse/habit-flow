@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "skills": {
+    "specs-dev": {
+      "source": "vaayne/cc-plugins",
+      "sourceType": "github",
+      "computedHash": "38a2952dea572b90cbbcbe6a83121104fc55767be229a934ab771ad5f33fd93f"
+    }
+  }
+}
