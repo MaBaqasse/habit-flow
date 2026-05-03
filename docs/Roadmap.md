@@ -221,67 +221,79 @@ SEMAINE 2 (v2.0 Nouvelles Features)
 
 ---
 
-### 📊 **PHASE 4 : Suivi Quotidien & Streaks System**
+### 📊 PHASE 4 : Suivi Quotidien, Streaks & Catégories
 
-**Durée** : 2 jours  
-**Objectifs** :
-- Créer système de suivi quotidien (check-ins)
-- Implémenter calcul des streaks (séries consécutives)
-- Ajouter UI pour log quotidien
-- Implémenter statistiques basiques de streak
+**Objectifs :**
+*   Implémenter le stockage des complétions (`HABIT_COMPLETION`).
+*   Gérer les statistiques de séries dans la table dédiée (`STREAK`).
+*   Finaliser le système de catégories pour l'organisation des habitudes.
 
-**Tasks** :
+---
 
-**Jour 1 - Modèle & Logique Streaks**
-- [ ] Créer migration `create_habit_logs_table` :
-  - `id`, `habit_id`, `logged_date`, `completed_at`, `notes`
-  - `streak_count`, `notes`
-- [ ] Créer model `HabitLog` avec :
-  - Relation `belongsTo(Habit)`
-  - Scope pour jour courant, semaine, mois
-  - Méthode pour calculer streak courant
-- [ ] Créer logique Streak Calculator (service class) :
-  - Calculer streak depuis logs ordonnés
-  - Gérer les interruptions
-  - Stocker le streak en DB
-- [ ] Implémenter mutation pour auto-update des streaks
-- [ ] Tests unitaires pour calculs de streaks
+**Jour 1 - Base de Données & Modèles**
+1.  Migrations (Respect du MLD) :
+    *   Créer `create_categories_table` : `id`, `name`, `color`.
+    *   Créer `create_habit_completions_table` : `id`, `habit_id`, `user_id`, `completed_date`, `note`.
+    *   Créer `create_streaks_table` : `id`, `habit_id`, `current_streak`, `best_streak`, `last_completed_date`.
+2.  Modèles Eloquent :
+    *   **Category** : Relation `hasMany(Habit)`.
+    *   **HabitCompletion** : Relation `belongsTo(Habit)`.
+    *   **Streak** : Relation `belongsTo(Habit)`.
+    *   **Habit** : Ajouter les relations vers `Category`, `Completions` et `Streak`.
+3.  Logique de Service (StreakCalculator) :
+    *   Créer une classe de service qui, lors d'une complétion :
+        1. Ajoute une ligne dans `habit_completions`.
+        2. Met à jour `current_streak` et `best_streak` dans la table `streaks`.
 
-**Jour 2 - API & UI Check-in**
-- [ ] Créer HabitLogController (store pour check-in)
-- [ ] Créer route POST `/habits/{id}/log` (check-in)
-- [ ] Créer composant UI "Check-in" (Blade partial) :
-  - Bouton check-in quotidien
-  - Affichage du streak courant
-  - Historique des 7 derniers jours (mini-calendar)
-- [ ] Intégrer check-in dans `habits/show.blade.php`
-- [ ] Ajouter feedback visuel (notification de succès)
-- [ ] Créer HabitLog seeder avec données réalistes
-- [ ] Tests Pest pour logique check-in et streaks
-- [ ] Styliser composants avec Tailwind CSS
+**Jour 2 - Interface & API**
+1.  Contrôleurs :
+    *   `HabitCompletionController` : Méthode `store` pour enregistrer le check-in quotidien.
+    *   Intégrer la mise à jour automatique de la table `STREAK` après chaque enregistrement.
+2.  UI & Blade (Composants) :
+    *   **Dashboard** : Afficher le `current_streak` récupéré depuis la table `STREAK`.
+    *   **Bouton Check-in** : Créer le composant interactif pour marquer une habitude comme "faite".
+    *   **Filtre Catégories** : Ajouter la possibilité de voir les habitudes par catégorie (Santé, Sport, etc.).
+3.  Seeders & Tests :
+    *   `CategorySeeder` : Insérer les catégories de base du PRD (Santé, Sport, Productivité).
+    *   `HabitCompletionSeeder` : Générer un historique pour tester les calculs de streaks.
+    *   Tests Pest : Vérifier que le `best_streak` augmente correctement quand le `current_streak` dépasse l'ancien record.
 
-**Livrables** :
-- HabitLog model avec streak calculations
-- Service Streak Calculator
-- UI de check-in quotidien
-- Affichage des streaks courants
-- Tests couvrant logique de streaks
-- Seeders pour données de test
+**Livrables** 
 
-**Validation & Tests** :
-- [ ] Check-in crée un HabitLog pour le jour courant
-- [ ] Streak augmente après chaque check-in consecutif
-- [ ] Streak reset après une journée d'absence
-- [ ] Affichage du streak courant correct en UI
-- [ ] Impossible de log 2x le même jour
-- [ ] Tests Pest pour tous les scénarios de streaks
-- [ ] Performance acceptable pour calcul de streaks
+*   **Modèles Eloquent & Migrations** :
+    *   Modèle `Category` (avec seeder pour Santé, Sport, etc.).
+    *   Modèle `HabitCompletion` pour l'historique quotidien.
+    *   Modèle `Streak` pour le stockage des records (`current` et `best`).
+*   **Service `StreakCalculator`** : Logique métier pour incrémenter le score dans la table `STREAK` après chaque insertion dans `HABIT_COMPLETION`.
+*   **UI de Check-in & Dashboard** :
+    *   Bouton d'action "Aujourd'hui".
+    *   Affichage des badges de streaks (série actuelle et meilleure série) basés sur la table `STREAK`.
+    *   Filtres par catégories colorées.
+*   **Tests & Seeders** :
+    *   `CategorySeeder` conforme au PRD.
+    *   Tests de logique pour la synchronisation entre les complétions et les statistiques de séries.
 
-**Dépendances** : Phase 3
+**Validation & Tests**
 
-**Risques** :
-- Calcul des streaks complexe → Tester exhaustivement edge cases
-- Timezone issues pour "jour courant" → Utiliser UTC + transformer côté frontend
+*   **Intégrité des données** :
+    *   Le check-in crée une entrée unique dans la table `HABIT_COMPLETION` pour le `user_id` et la `completed_date` donnés.
+    *   Impossible de créer deux `HABIT_COMPLETION` pour la même habitude le même jour (contrainte d'unicité).
+*   **Logique de Streak** :
+    *   `current_streak` augmente de +1 dans la table `STREAK` après un check-in consécutif.
+    *   `best_streak` est mis à jour uniquement si `current_streak` dépasse la valeur actuelle de `best_streak`.
+    *   `current_streak` est réinitialisé à 0 si une journée est sautée (logique gérée par le `StreakCalculator`).
+*   **Interface** :
+    *   Affichage correct du nom et de la couleur de la catégorie associée à l'habitude.
+    *   Feedback visuel immédiat (barre de progression ou succès) après le check-in.
+
+
+*   **Dépendances** : Phase 3.
+
+*   **Risques techniques** :
+
+    *   **Désynchronisation** : Risque que la table `STREAK` ne reflète pas le nombre réel de lignes dans `HABIT_COMPLETION`. 
+    *   **Solution** : Utiliser des **Database Transactions** dans Laravel lors du check-in pour garantir que si l'enregistrement de la complétion échoue, le streak n'est pas incrémenté par erreur.
+    *   **Timezones** : Attention à la définition de la "journée" (00:00 à 23:59) pour les utilisateurs à Marrakech par rapport au serveur. Utilisez `config('app.timezone')` correctement dans vos migrations.
 
 ---
 
