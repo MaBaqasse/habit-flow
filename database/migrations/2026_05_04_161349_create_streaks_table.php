@@ -13,7 +13,13 @@ return new class extends Migration
     {
         Schema::create('streaks', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('habit_id')->constrained('habits')->onDelete('cascade');
+            $table->integer('current_streak')->default(0);
+            $table->integer('best_streak')->default(0);
+            $table->date('last_completed_date')->nullable();
             $table->timestamps();
+
+            $table->unique('habit_id');
         });
     }
 

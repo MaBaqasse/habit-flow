@@ -11,9 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('habit__completions', function (Blueprint $table) {
+        Schema::create('habit_completions', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('habit_id')->constrained('habits')->onDelete('cascade');
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->date('completed_date');
+            $table->string('note')->nullable();
             $table->timestamps();
+
+            $table->unique(['habit_id', 'user_id', 'completed_date']);
         });
     }
 

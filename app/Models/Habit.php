@@ -14,12 +14,13 @@ class Habit extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name', 
-        'description', 
-        'frequency', 
-        'color', 
-        'is_active', 
-        'user_id'
+        'name',
+        'description',
+        'frequency',
+        'color',
+        'is_active',
+        'user_id',
+        'category_id',
     ];
 
     // Constantes pour éviter les erreurs de frappe dans ton code

@@ -45,6 +45,10 @@
                         <dt class="font-semibold text-slate-800">Fréquence</dt>
                         <dd class="mt-1 capitalize">{{ $habit->frequency }}</dd>
                     </div>
+                    <div class="mt-4">
+                        <dt class="font-semibold text-slate-800">Catégorie</dt>
+                        <dd class="mt-1 capitalize">{{ $habit->category?->name ?? 'Non classée' }}</dd>
+                    </div>
                     <div>
                         <dt class="font-semibold text-slate-800">Couleur</dt>
                         <dd class="mt-1 flex items-center gap-3">

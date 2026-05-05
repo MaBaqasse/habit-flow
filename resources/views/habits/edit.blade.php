@@ -35,6 +35,16 @@
                         <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                     @enderror
                 </div>
+                <div class="mt-4">
+                    <label for="category_id" class="block font-medium text-sm text-gray-700">Catégorie</label>
+                    <select name="category_id" id="category_id">
+                        @foreach($categories as $category)
+                            <option value="{{ $category->id }}" {{ $habit->category_id == $category->id ? 'selected' : '' }}>
+                                {{ $category->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
 
                 <div class="grid gap-6 md:grid-cols-2">
                     <div>

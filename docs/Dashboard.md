@@ -1,68 +1,36 @@
-# 📊 Logique de Design : Dashboard (HabitFlow v2.0)
-
----
+# Logique de Design : Dashboard
 
 ## 1. Objectif de la Page
-
-Le Dashboard est le **centre de pilotage** de l'utilisateur. Il doit permettre de visualiser en un coup d'œil la progression, la régularité (streaks) et les performances hebdomadaires.
-
-Conformément à l'**objectif O3 du PRD**, il transforme les données brutes en informations visuelles exploitables.
-
----
+Le Dashboard évolue pour devenir un centre d'analyse de la performance globale de l'utilisateur. Il permet de piloter l'activité quotidienne tout en mettant en avant les records de régularité (Top Streaks) et en offrant un accès rapide aux statistiques détaillées par habitude.
 
 ## 2. Structure Visuelle & Composants (Wireframe Logic)
 
-### A. Barre de Résumé (KPIs)
+### A. Barre de Résumé des Stats Globales (KPIs)
+Située en haut de page, elle affiche les compteurs consolidés de l'utilisateur :
+*   **Taux de complétion du jour (%)** : Pourcentage global d'habitudes cochées aujourd'hui par rapport au total des habitudes actives. Affiche également le nombre exact de complétions (ex: "3/5 habitudes").
+*   **Habitudes Actuelles** : Nombre total d'habitudes correspondant au filtre de catégorie séléctionné.
+*   **Catégorie Active** : Rappel textuel de la catégorie séléctionnée pour le filtrage (ou "Toutes").
 
-Située en haut de page, elle affiche les compteurs clés :
+### B. Top 3 Streaks
+Un nouveau panneau affichant les 3 habitudes possédant la `current_streak` la plus élevée, récupérée depuis la table **STREAK**. Cela encourage la compétition avec soi-même.
 
-- **Taux de complétion quotidien** : Pourcentage d'habitudes cochées aujourd'hui.
-- **Meilleure Série (Best Streak)** : Record historique de l'utilisateur.
-- **Habitude la plus performante** : Celle avec le taux de réussite le plus élevé.
-
----
-
-### B. Graphiques de Progression (Chart.js)
-
-- **Vue Hebdomadaire (Histogramme)** : Affiche le nombre d'habitudes complétées sur les 7 derniers jours pour visualiser la tendance.
-- **Répartition par Catégorie (Graphique Circulaire)** : Montre l'équilibre entre Santé, Sport, Productivité, etc.
-
----
-
-### C. Le Calendrier Visuel (Historique 30 jours)
-
-Un *heatmap* ou calendrier compact où chaque jour est coloré selon le statut :
-
-| Couleur | Signification |
-|---|---|
-| 🟢 Vert | Habitudes complétées |
-| 🔴 Rouge | Objectifs non atteints |
-| ⚪ Gris | Jours sans données ou non applicables |
-
----
+### C. Composants Interactifs & Filtrage
+*   **Filtre par Catégorie** : Menu déroulant (dropdown) alimenté par la table **CATEGORIE** pour filtrer dynamiquement l'affichage de la liste.
+*   **Cartes d'Habitudes Personnalisées** :
+    *   **Suppression des Streaks Individuels** : Les blocs "Série actuelle" et "Meilleure série" sont retirés de la vue principale pour alléger l'interface.
+    *   **Bouton Check-in Coloré** : Le bouton adopte dynamiquement la couleur définie par l'utilisateur pour l'habitude (`$habit->color`) au lieu du violet standard.
+    *   **Bouton "Voir Statistiques"** : Remplace le bouton "Modifier". Il redirige vers la page de détails ou de statistiques de l'habitude spécifique.
 
 ## 3. Logique de Données (Backend-to-Frontend)
 
 | Élément | Source de Données (MLD) | Logique de Calcul |
-|---|---|---|
-| Streaks | Table `STREAK` | Récupération de `current_streak` et `best_streak` |
-| Graphique 7 jours | Table `HABIT_COMPLETION` | `COUNT` des entrées groupées par `completed_date` |
-| Taux Global | Table `HABIT_COMPLETION` | `(Total complétées / Total possibles) * 100` |
-| Statut Google | Table `CALENDAR_SYNCS` | Vérification si l'habitude est synchronisée (indicateur visuel) |
-
----
+| :--- | :--- | :--- |
+| **Taux Global** | **HABIT_COMPLETION** | `(Complétées aujourd'hui / Total actives) * 100`. |
+| **Top 3 Streaks** | **STREAK** | `Habit::with('streak')->orderByDesc('current_streak')->take(3)`. |
+| **Filtre** | **CATEGORIE** | Filtrage de la collection par `category_id`. |
+| **Bouton Check-in** | **HABIT** | Application de `$habit->color` dans le style CSS du bouton. |
 
 ## 4. Expérience Utilisateur (UX) & Ergonomie
-
-- **Isolation des données** : Le contrôleur utilise une *Policy* pour garantir que les statistiques affichées ne concernent que l'utilisateur authentifié *(Objectif O4 du PRD)*.
-- **Performance** : Mise en cache des statistiques lourdes via **Laravel Cache** pour garantir un temps de réponse < 2 secondes.
-- **Responsive Design** : Utilisation de **Tailwind CSS** avec une approche *mobile-first* pour permettre le suivi sur smartphone *(Exigence Ergonomie)*.
-
----
-
-## 5. Intégrations Spécifiques v2.0
-
-Le Dashboard inclut désormais deux nouveaux raccourcis :
-
-- **★ État de Synchronisation** : Badge visuel à côté de chaque habitude confirmant la liaison avec Google Calendar.
-- **★ Rappel Rapide** : Lien vers les paramètres pour ajuster l'heure de la Notification Email quotidienne sans quitter le tableau de bord.
+*   **Cohérence Visuelle** : L'utilisation de la couleur de l'habitude pour le bouton Check-in renforce le lien cognitif entre l'action et l'objectif.
+*   **Focus sur la Data** : Le remplacement du bouton "Modifier" par "Voir Statistique" oriente l'utilisateur vers l'analyse de ses progrès plutôt que vers la gestion administrative.
+*   **Responsive Design** : Maintien de l'approche mobile-first avec Tailwind CSS.

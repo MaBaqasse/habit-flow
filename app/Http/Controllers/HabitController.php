@@ -7,6 +7,7 @@ use App\Http\Requests\UpdateHabitRequest;
 use App\Models\Habit;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
+use App\Models\Categorie;
 
 class HabitController extends Controller
 {
@@ -30,7 +31,9 @@ class HabitController extends Controller
      */
     public function create(): View
     {
-        return view('habits.create');
+        // Récupérer les catégories pour le menu déroulant
+       $categories = Categorie::all(); 
+       return view('habits.create', compact('categories'));
     }
 
     /**
@@ -43,7 +46,15 @@ class HabitController extends Controller
         $validated['user_id'] = auth()->id();
         $validated['is_active'] = $request->boolean('is_active', true);
 
-        Habit::create($validated);
+        // 3. Création de l'habitude dans la table HABIT
+        $habit = Habit::create($validated);
+
+        // 4. Initialisation automatique du Streak pour cette nouvelle habitude
+        $habit->streak()->create([
+            'current_streak' => 0,
+            'best_streak' => 0,
+            'last_completed_date' => null,
+        ]);
 
         return redirect()->route('habits.index')
             ->with('success', 'Habit created successfully.');
@@ -62,7 +73,11 @@ class HabitController extends Controller
      */
     public function edit(Habit $habit): View
     {
-        return view('habits.edit', compact('habit'));
+        // 1. Récupérer toutes les catégories pour remplir le menu déroulant
+        $categories = Categorie::all();
+
+        // 2. Envoyer l'habitude ET les catégories à la vue
+        return view('habits.edit', compact('habit', 'categories'));
     }
 
     /**

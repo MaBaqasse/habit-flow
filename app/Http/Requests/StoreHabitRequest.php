@@ -24,6 +24,7 @@ class StoreHabitRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:150',
+            'category_id' => 'required|exists:categories,id',
             'description' => 'nullable|string',
             'frequency' => 'required|in:daily,weekly,monthly',
             'color' => 'required|string|regex:/^#[a-fA-F0-9]{6}$/',
