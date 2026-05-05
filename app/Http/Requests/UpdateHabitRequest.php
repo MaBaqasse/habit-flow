@@ -25,6 +25,7 @@ class UpdateHabitRequest extends FormRequest
         return [
             'name' => 'required|string|max:150',
             'description' => 'nullable|string',
+            'category_id' => 'nullable|exists:categories,id',
             'frequency' => 'required|in:daily,weekly,monthly',
             'color' => 'required|string|regex:/^#[a-fA-F0-9]{6}$/',
             'is_active' => 'boolean',
@@ -38,6 +39,8 @@ class UpdateHabitRequest extends FormRequest
     {
         return [
             'name.required' => 'The habit name is required.',
+            'category_id.nullable' => 'The category is optional.',
+            'category_id.exists' => 'The selected category is invalid.',
             'name.max' => 'The habit name must not exceed 255 characters.',
             'frequency.required' => 'Please select a frequency.',
             'frequency.in' => 'The selected frequency is invalid.',

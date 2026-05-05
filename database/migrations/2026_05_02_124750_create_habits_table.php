@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             // Relation avec l'utilisateur (Foreign Key)
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->unsignedBigInteger('category_id')->nullable();
     
             $table->string('name');
             $table->text('description')->nullable();

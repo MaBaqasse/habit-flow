@@ -45,6 +45,7 @@
                     <div class="flex flex-wrap items-center gap-3 text-sm text-slate-500 mb-6">
                         <span class="rounded-full bg-slate-100 px-3 py-1">{{ ucfirst($habit->frequency) }}</span>
                         <span class="rounded-full bg-slate-100 px-3 py-1">{{ $habit->color }}</span>
+                        <span class="rounded-full bg-slate-100 px-3 py-1">{{ $habit->category?->name ?? 'Sans catégorie' }}</span>
                     </div>
 
                     <div class="flex flex-wrap items-center gap-3">

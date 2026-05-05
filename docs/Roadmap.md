@@ -297,65 +297,55 @@ SEMAINE 2 (v2.0 Nouvelles Features)
 
 ---
 
-### 🎨 **PHASE 5 : Tableau de Bord & Visualisations**
+# 📊 PHASE 5 : Dashboard Analytique & Visualisations Globales
 
-**Durée** : 1.5 jours  
-**Objectifs** :
-- Créer dashboard principal
-- Afficher statistiques et progrès
-- Implémenter visualisations (graphiques simples)
-- Optimiser les queries (éviter N+1)
+**Durée :** 1.5 jours
+**Objectifs :** 
+* Transformer le dashboard en centre de pilotage avec KPIs globaux.
+* Exploiter les données de la table `STREAK` et `HABIT_COMPLETION` pour des graphiques.
+* Optimiser les performances pour garantir un chargement rapide malgré les calculs.
 
-**Tasks** :
+### Jour 1 : Logique Statistique & KPIs Globaux
 
-**Jour 1 - Dashboard Layout & Stats**
-- [ ] Créer DashboardController avec `index()` method
-- [ ] Query optimisée pour charger :
-  - All habits de l'user avec leur streak courant
-  - Stats du jour (% habits complétés)
-  - Stats de la semaine
-  - Top 3 habitudes par streak
-- [ ] Implémenter eager loading pour éviter N+1 queries
-- [ ] Créer view `dashboard/index.blade.php` avec :
-  - Résumé quotidien (X/Y habitudes complétées)
-  - Grille des habitudes avec badges de streak
-  - Vue semaine (mini-calendar)
-  - Top performers
-- [ ] Styliser dashboard avec Tailwind CSS (grid layout, cards)
-- [ ] Ajouter dropdown de filtres (par catégorie, active/inactive)
+**Tâches :**
+* **Optimisation du Controller (`DashboardController@index`) :**
+    * Utiliser le **Eager Loading** pour charger `habits` avec leurs relations `category` et `streak` en une seule requête (évite le problème N+1).
+    * Calculer le **Taux de complétion global** du jour : `(habits_completed_today / total_active_habits) * 100`.
+    * Récupérer le **Top 3 Streaks** : Query sur la table `STREAK` triée par `current_streak` descendant.
+* **Mise à jour de la Vue (`dashboard/index.blade.php`) :**
+    * **Barre de KPIs** : Afficher les widgets pour le taux de complétion (%), le nombre d'habitudes actives selon le filtre, et le nom de la catégorie sélectionnée.
+    * **Refonte des Cartes d'Habitudes** :
+        * Supprimer les compteurs de séries individuels (déplacés vers les stats globales ou le bouton "Voir Statistiques").
+        * Appliquer dynamiquement `$habit->color` au bouton **Check-in**.
+        * Remplacer le lien "Modifier" par un lien **"Voir Statistiques"** pointant vers la vue détaillée.
+* **Système de Filtrage Avancé :**
+    * Maintenir le dropdown des catégories synchronisé avec les statistiques affichées.
 
-**Jour 2 - Visualisations & Performance**
-- [ ] Implémenter mini chart :
-  - Barres simples pour complétions par jour (semaine)
-  - Utiliser Chart.js ou Alpine.js + SVG
-  - Responsive et mobile-friendly
-- [ ] Ajouter widget "Streak Streaks" (plus hauts streaks actuels)
-- [ ] Implémenter widget "Recent Activity"
-- [ ] Optimiser requêtes SQL (profile avec Debugbar si besoin)
-- [ ] Tester avec 100+ habitudes pour perfs
-- [ ] Créer tests Pest pour dashboard queries
-- [ ] Responsive design pour mobile
+### Jour 2 : Visualisations (Chart.js) & Performance
 
-**Livrables** :
-- Dashboard page fonctionnelle
-- Statistiques et visualisations claires
-- Queries optimisées (pas de N+1)
-- Tests de performance validés
-- Design responsive
+**Tâches :**
+* **Implémentation des Graphiques (Frontend) :**
+    * **Histogramme de la Semaine** : Utiliser `HABIT_COMPLETION` pour compter les succès des 7 derniers jours et les afficher via **Chart.js**.
+    * **Répartition par Catégorie** : Graphique circulaire (Donut chart) montrant le volume d'habitudes par domaine (Santé, Sport, etc.).
+* **Widget d'Activité Récente :**
+    * Créer un flux (feed) affichant les 5 derniers "Check-ins" effectués pour donner un sentiment de progression immédiate.
+* **Audit de Performance :**
+    * Vérifier avec Laravel Debugbar que le passage d'une catégorie à une autre ne déclenche pas de nouvelles requêtes inutiles.
+    * Tester la réactivité du design sur mobile (les graphiques doivent s'adapter à la largeur de l'écran).
+* **Tests de Validation (Pest) :**
+    * Tester que le calcul du pourcentage de complétion est exact (ex: 1 habitude sur 2 faite = 50%).
 
-**Validation & Tests** :
-- [ ] Dashboard charge en < 500ms
-- [ ] Stats quotidiennes et hebdomadaires exactes
-- [ ] Filtres fonctionnent correctement
-- [ ] Pas de N+1 queries (vérifier logs DB)
-- [ ] Responsive sur mobile (< 768px)
-- [ ] Tests Pest pour chaque stat calculée
+### Livrables mis à jour
+1.  **Dashboard avec KPIs consolidés** (Taux %, Top Streaks, Filtre actif).
+2.  **Cartes d'habitudes épurées** avec boutons Check-in colorés et accès aux statistiques.
+3.  **Deux Graphiques interactifs** : Progression hebdomadaire et Répartition par catégories.
+4.  **Code optimisé** : Utilisation systématique de `with(['streak', 'category'])` pour la performance.
 
-**Dépendances** : Phase 4
-
-**Risques** :
-- N+1 queries → Implémenter eager loading dès le départ
-- Performance dashboard → Limiter data chargées et ajouter pagination si besoin
+### Risques & Solutions
+*   **Risque de Lenteur** : Si l'utilisateur a beaucoup d'historique dans `HABIT_COMPLETION`.
+    *   *Solution* : Utiliser des agrégations SQL (`COUNT`, `GROUP BY`) directement dans la query plutôt que de traiter les collections en PHP.
+*   **Affichage Mobile** : Les graphiques peuvent être illisibles sur petit écran.
+    *   *Solution* : Utiliser l'option `responsive: true` de Chart.js et cacher les labels secondaires sur mobile.
 
 ---
 

@@ -34,7 +34,19 @@
                         <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                     @enderror
                 </div>
-
+                <!-- Champ Catégorie -->
+                <div class="mt-4">
+                    <label for="category_id" class="block font-medium text-sm text-gray-700">Catégorie</label>
+                    <select name="category_id" id="category_id" class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm mt-1 block w-full">
+                        <option value="">-- Choisir une catégorie --</option>
+                        @foreach($categories as $category)
+                            <option value="{{ $category->id }}" 
+                                {{ isset($habit) && $habit->category_id == $category->id ? 'selected' : '' }}>
+                                {{ $category->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
                 <div class="grid gap-6 md:grid-cols-2">
                     <div>
                         <label for="frequency" class="mb-2 block text-sm font-semibold text-slate-700">Fréquence *</label>
