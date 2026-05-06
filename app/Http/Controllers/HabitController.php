@@ -86,10 +86,15 @@ class HabitController extends Controller
     public function update(UpdateHabitRequest $request, Habit $habit): RedirectResponse
     {
         $validated = $request->validated();
-
-        $validated['is_active'] = $request->boolean('is_active', $habit->is_active);
+        $validated['is_active'] = $request->boolean('is_active'); // Récupère true ou false
 
         $habit->update($validated);
+
+        // Si l'habitude vient d'être désactivée, on peut rediriger vers les archives
+        if (!$habit->is_active) {
+            return redirect()->route('habits.archives')
+                ->with('success', 'Habitude archivée avec succès.');
+        }
 
         return redirect()->route('habits.index')
             ->with('success', 'Habit updated successfully.');
@@ -104,5 +109,18 @@ class HabitController extends Controller
 
         return redirect()->route('habits.index')
             ->with('success', 'Habit deleted successfully.');
+    }
+
+    /**
+    * Affiche les habitudes archivées (inactives).
+    */
+    public function archives(): View
+    {
+        $archivedHabits = auth()->user()->habits()
+            ->archived()
+            ->with(['category', 'streak'])
+            ->get();
+
+        return view('habits.archives', compact('archivedHabits'));
     }
 }

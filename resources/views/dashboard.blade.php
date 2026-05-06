@@ -59,9 +59,37 @@
             </form>
         </div>
 
+            <div class="mt-8 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+                <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                    <div>
+                        <h3 class="text-lg font-semibold text-slate-900">Top 3 des streaks</h3>
+                        <p class="mt-1 text-sm text-slate-500">Vos habitudes les plus régulières.</p>
+                    </div>
+                </div>
+
+                <div class="mt-6 grid gap-4 xl:grid-cols-3">
+                    @forelse($topStreaks as $habit)
+                        <div class="rounded-3xl border border-slate-200 bg-slate-50 p-5">
+                            <div class="flex items-center gap-3">
+                                <span class="inline-flex h-3.5 w-3.5 rounded-full" style="background-color: {{ $habit->color }}"></span>
+                                <p class="text-sm font-semibold text-slate-900">{{ $habit->name }}</p>
+                            </div>
+                            <p class="mt-4 text-3xl font-semibold text-slate-900">{{ optional($habit->streak)->current_streak ?? 0 }}</p>
+                            <p class="mt-2 text-sm text-slate-500">Série actuelle</p>
+                            <p class="mt-4 text-sm text-slate-500">Meilleure série : {{ optional($habit->streak)->best_streak ?? 0 }}</p>
+                        </div>
+                    @empty
+                        <div class="rounded-3xl border border-dashed border-slate-300 bg-white p-6 text-center text-slate-500 xl:col-span-3">
+                            <p class="font-semibold">Aucun streak disponible pour le moment.</p>
+                            <p class="mt-2 text-sm">Commencez une habitude pour voir vos meilleurs streaks ici.</p>
+                        </div>
+                    @endforelse
+                </div>
+            </div>
+
             <div class="mt-8 grid gap-6 xl:grid-cols-3">
                 @forelse($habits as $habit)
-                    <article class="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+                    <article class="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm {{ $habit->completed_current_period ? 'opacity-70 grayscale' : '' }}">
                         <div class="border-b border-slate-100 p-6" style="{{ 'border-left: 6px solid ' . $habit->color . ';' }}">
                             <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                                 <div>
@@ -79,26 +107,19 @@
                         <div class="p-6">
                             <div class="mb-5 flex flex-wrap items-center gap-2 text-sm text-slate-600">
                                 <span class="rounded-full bg-slate-100 px-3 py-1">{{ $habit->category?->name ?? 'Sans catégorie' }}</span>
-                                <span class="rounded-full bg-slate-100 px-3 py-1">Couleur : {{ $habit->color }}</span>
-                            </div>
-
-                            <div class="grid gap-3 sm:grid-cols-2">
-                                <div class="rounded-3xl bg-slate-50 px-4 py-4">
-                                    <p class="text-xs uppercase tracking-[0.2em] text-slate-500">Série actuelle</p>
-                                    <p class="mt-2 text-2xl font-semibold text-slate-900">{{ optional($habit->streak)->current_streak ?? 0 }}</p>
-                                </div>
-                                <div class="rounded-3xl bg-slate-50 px-4 py-4">
-                                    <p class="text-xs uppercase tracking-[0.2em] text-slate-500">Meilleure série</p>
-                                    <p class="mt-2 text-2xl font-semibold text-slate-900">{{ optional($habit->streak)->best_streak ?? 0 }}</p>
-                                </div>
                             </div>
 
                             <div class="mt-6 flex flex-wrap items-center gap-3">
-                                <form action="{{ route('habits.complete', $habit) }}" method="POST" class="inline-flex">
-                                    @csrf
-                                    <x-check-in-button>Check-in</x-check-in-button>
-                                </form>
-                                <a href="{{ route('habits.edit', $habit) }}" class="inline-flex items-center justify-center rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">Modifier</a>
+                                @if($habit->completed_current_period)
+                                    <span class="inline-flex items-center rounded-full bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700">Terminé</span>
+                                @else
+                                    <form action="{{ route('habits.complete', $habit) }}" method="POST" class="inline-flex">
+                                        @csrf
+                                        <x-check-in-button :color="$habit->color">Check-in</x-check-in-button>
+                                    </form>
+                                @endif
+
+                                <a href="{{ route('habits.show', $habit) }}" class="inline-flex items-center justify-center rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">Voir statistiques</a>
                             </div>
                         </div>
                     </article>
