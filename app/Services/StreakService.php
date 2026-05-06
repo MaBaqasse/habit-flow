@@ -17,6 +17,10 @@ class StreakService
     {
         $today = Carbon::today();
 
+        if (! $habit->is_active) {
+            throw new \RuntimeException('Impossible de compléter une habitude archivée.');
+        }
+
         return DB::transaction(function () use ($habit, $user_id, $today, $note) {
             // 1. Créer la complétion dans HABIT_COMPLETION
             $completion = Habit_Completion::firstOrCreate(

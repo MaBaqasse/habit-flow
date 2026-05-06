@@ -11,9 +11,14 @@
             <h1 class="text-3xl font-bold text-slate-900">Mes habitudes</h1>
             <p class="mt-2 text-sm text-slate-600 max-w-2xl">Suivez vos habitudes quotidiennes et hebdomadaires avec une vue claire et des actions rapides.</p>
         </div>
-        <a href="{{ route('habits.create') }}" class="inline-flex items-center justify-center rounded-lg bg-[#4A90E2] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-600">
-            Créer une habitude
-        </a>
+        <div class="flex flex-col gap-3 sm:flex-row">
+            <a href="{{ route('habits.archives') }}" class="inline-flex items-center justify-center rounded-lg border border-slate-200 bg-slate-50 px-5 py-3 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-100">
+                Voir les archives
+            </a>
+            <a href="{{ route('habits.create') }}" class="inline-flex items-center justify-center rounded-lg bg-[#4A90E2] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-600">
+                Créer une habitude
+            </a>
+        </div>
     </div>
 
     @if(session('success'))

@@ -19,6 +19,10 @@ class HabitCompletionController extends Controller
             abort(403, "Vous n'êtes pas autorisé à modifier cette habitude.");
         }
 
+        if (! $habit->is_active) {
+            abort(403, 'Impossible de compléter une habitude archivée.');
+        }
+
         // 2. Optionnel : Valider la note si elle est fournie
         $validated = $request->validate([
             'note' => 'nullable|string|max:500',

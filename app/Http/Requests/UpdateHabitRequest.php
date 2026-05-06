@@ -23,11 +23,11 @@ class UpdateHabitRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|string|max:150',
+            'name' => 'required_without:is_active|string|max:150',
             'description' => 'nullable|string',
             'category_id' => 'nullable|exists:categories,id',
-            'frequency' => 'required|in:daily,weekly,monthly',
-            'color' => 'required|string|regex:/^#[a-fA-F0-9]{6}$/',
+            'frequency' => 'required_without:is_active|in:daily,weekly,monthly',
+            'color' => 'required_without:is_active|string|regex:/^#[a-fA-F0-9]{6}$/',
             'is_active' => 'boolean',
         ];
     }

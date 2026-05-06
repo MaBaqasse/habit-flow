@@ -52,6 +52,11 @@ class Habit extends Model
         return $query->where('is_active', true);
     }
 
+    public function scopeArchived(Builder $query): Builder
+    {
+        return $query->where('is_active', false);
+    }
+
     // Relation vers Category
     public function category(): BelongsTo
     {

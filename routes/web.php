@@ -24,6 +24,8 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
+    Route::get('/habits/archives', [HabitController::class, 'archives'])->name('habits.archives');
+
     // Gestion des Habitudes (CRUD) - Exclude show car on utilise HabitStatsController
     Route::resource('habits', HabitController::class)->except(['show']);
     
