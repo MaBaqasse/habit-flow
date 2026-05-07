@@ -34,6 +34,13 @@ class User extends Authenticatable
         'remember_token',
     ];
 
+    protected $casts = [
+        'google_access_token' => 'encrypted',
+        'google_refresh_token' => 'encrypted',
+        'google_token_expires_at' => 'datetime',
+        'google_calendar_sync_enabled' => 'boolean',
+    ];
+
     /**
      * Get the attributes that should be cast.
      *
@@ -47,7 +54,8 @@ class User extends Authenticatable
         ];
     }
 
-    public function habits() {
-    return $this->hasMany(Habit::class);
+    public function habits()
+    {
+        return $this->hasMany(Habit::class);
     }
 }
