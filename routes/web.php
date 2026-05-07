@@ -1,10 +1,11 @@
 <?php
 
-use App\Http\Controllers\HabitController;
+use App\Http\Controllers\Auth\GoogleAuthController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\HabitCompletionController;
+use App\Http\Controllers\HabitController;
 use App\Http\Controllers\HabitStatsController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
 
 // Page d'accueil
@@ -28,12 +29,18 @@ Route::middleware('auth')->group(function () {
 
     // Gestion des Habitudes (CRUD) - Exclude show car on utilise HabitStatsController
     Route::resource('habits', HabitController::class)->except(['show']);
-    
+
     // Statistiques détaillées d'une habitude
     Route::get('habits/{habit}', [HabitStatsController::class, 'show'])->name('habits.show');
-    
+
     // Enregistrement d'une complétion (Check-in)
     Route::post('habits/{habit}/complete', [HabitCompletionController::class, 'store'])->name('habits.complete');
+
+    Route::get('auth/google', [GoogleAuthController::class, 'redirect'])
+        ->name('auth.google.redirect');
+
+    Route::get('auth/google/callback', [GoogleAuthController::class, 'callback'])
+        ->name('auth.google.callback');
 });
 
 require __DIR__.'/auth.php';
