@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 use App\Models\Habit;
 use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class HabitSeeder extends Seeder
@@ -16,7 +15,7 @@ class HabitSeeder extends Seeder
     {
         $user = User::firstOrFail();
 
-        echo "Seeding habits for user: " . $user->email . "\n";
+        echo 'Seeding habits for user: '.$user->email."\n";
 
         Habit::factory()
             ->count(5)

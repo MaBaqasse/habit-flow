@@ -16,12 +16,12 @@ return new class extends Migration
             // Relation avec l'utilisateur (Foreign Key)
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->unsignedBigInteger('category_id')->nullable();
-    
+
             $table->string('name');
             $table->text('description')->nullable();
-    
+
             $table->string('frequency')->default('daily');
-    
+
             $table->string('color')->default('#4A90E2'); // Pour l'UI
             $table->boolean('is_active')->default(true);
             $table->timestamps();

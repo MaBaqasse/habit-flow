@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Habit;
 use App\Models\Categorie;
-use Illuminate\Http\Request;
+use App\Models\Habit;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
@@ -55,8 +55,8 @@ class DashboardController extends Controller
         // Cela garantit que les habitudes hebdo/mensuelles déjà faites ne pénalisent pas le score.
         $totalPotentiel = $habitsDue->count() + $completedToday;
 
-        $dailyCompletionRate = $totalPotentiel > 0 
-            ? round(($completedToday / $totalPotentiel) * 100) 
+        $dailyCompletionRate = $totalPotentiel > 0
+            ? round(($completedToday / $totalPotentiel) * 100)
             : 0;
 
         // 3. Récupérer le Top 3 des streaks actifs
@@ -71,10 +71,10 @@ class DashboardController extends Controller
         $selectedCategory = $selectedCategoryId;
 
         return view('dashboard', compact(
-            'habits', 
-            'dailyCompletionRate', 
-            'completedToday', 
-            'topStreaks', 
+            'habits',
+            'dailyCompletionRate',
+            'completedToday',
+            'topStreaks',
             'categories',
             'selectedCategory'
         ));

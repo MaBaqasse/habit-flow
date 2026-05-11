@@ -64,6 +64,18 @@
                     </div>
 
                     <div>
+                        <label for="target_time" class="mb-2 block text-sm font-semibold text-slate-700">Heure cible</label>
+                        <input type="time" name="target_time" id="target_time" value="{{ old('target_time') }}"
+                               class="w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-[#4A90E2] focus:ring-2 focus:ring-blue-100 @error('target_time') border-red-400 bg-red-50 @enderror">
+                        @error('target_time')
+                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                        <p class="mt-1 text-xs text-slate-500">L'heure préférée pour cette habitude</p>
+                    </div>
+                </div>
+
+                <div class="grid gap-6 md:grid-cols-1">
+                    <div>
                         <label for="color" class="mb-2 block text-sm font-semibold text-slate-700">Couleur *</label>
                         <input type="color" name="color" id="color" value="{{ old('color', '#4A90E2') }}"
                                class="h-14 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-[#4A90E2] focus:ring-2 focus:ring-blue-100 @error('color') border-red-400 bg-red-50 @enderror"
@@ -74,13 +86,19 @@
                     </div>
                 </div>
 
-                <div class="flex items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-4 py-4">
+                <div class="flex flex-col gap-4 rounded-lg border border-slate-200 bg-slate-50 px-4 py-4">
                     <label class="flex items-center gap-3 text-sm font-semibold text-slate-700">
                         <input type="checkbox" name="is_active" value="1" {{ old('is_active', true) ? 'checked' : '' }}
                                class="h-5 w-5 rounded border-slate-300 text-[#4A90E2] focus:ring-[#4A90E2]">
                         Actif
                     </label>
                     <p class="text-sm text-slate-500">Désactivez l'habitude si elle n'est plus pertinente.</p>
+                    <label class="flex items-center gap-3 text-sm font-semibold text-slate-700">
+                        <input type="checkbox" name="sync_to_google_calendar" value="1" {{ old('sync_to_google_calendar') ? 'checked' : '' }}
+                               class="h-5 w-5 rounded border-slate-300 text-[#4A90E2] focus:ring-[#4A90E2]">
+                        Synchroniser avec Google Calendar
+                    </label>
+                    <p class="text-sm text-slate-500">Créer ou mettre à jour un événement dans votre calendrier Google lorsque cette habitude est complétée.</p>
                 </div>
             </div>
 

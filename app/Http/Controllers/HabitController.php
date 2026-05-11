@@ -4,14 +4,16 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreHabitRequest;
 use App\Http\Requests\UpdateHabitRequest;
+use App\Models\CalendarSync;
+use App\Models\Categorie;
 use App\Models\Habit;
+use App\Services\GoogleCalendarService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
-use App\Models\Categorie;
 
 class HabitController extends Controller
 {
-    public function __construct()
+    public function __construct(public GoogleCalendarService $googleCalendarService)
     {
         $this->authorizeResource(Habit::class, 'habit');
     }
@@ -32,8 +34,9 @@ class HabitController extends Controller
     public function create(): View
     {
         // Récupérer les catégories pour le menu déroulant
-       $categories = Categorie::all(); 
-       return view('habits.create', compact('categories'));
+        $categories = Categorie::all();
+
+        return view('habits.create', compact('categories'));
     }
 
     /**
@@ -45,6 +48,7 @@ class HabitController extends Controller
 
         $validated['user_id'] = auth()->id();
         $validated['is_active'] = $request->boolean('is_active', true);
+        $validated['sync_to_google_calendar'] = $request->boolean('sync_to_google_calendar', false);
 
         // 3. Création de l'habitude dans la table HABIT
         $habit = Habit::create($validated);
@@ -55,6 +59,10 @@ class HabitController extends Controller
             'best_streak' => 0,
             'last_completed_date' => null,
         ]);
+
+        if ($habit->sync_to_google_calendar && auth()->user()->google_calendar_sync_enabled) {
+            $this->googleCalendarService->createEvent(auth()->user(), $habit);
+        }
 
         return redirect()->route('habits.index')
             ->with('success', 'Habit created successfully.');
@@ -85,13 +93,31 @@ class HabitController extends Controller
      */
     public function update(UpdateHabitRequest $request, Habit $habit): RedirectResponse
     {
+        $wasSyncEnabled = $habit->sync_to_google_calendar;
         $validated = $request->validated();
-        $validated['is_active'] = $request->boolean('is_active'); // Récupère true ou false
+        $validated['is_active'] = $request->boolean('is_active');
+        $validated['sync_to_google_calendar'] = $request->boolean('sync_to_google_calendar');
 
         $habit->update($validated);
 
+        if ($habit->sync_to_google_calendar && auth()->user()->google_calendar_sync_enabled) {
+            $existingSync = CalendarSync::where('habit_id', $habit->id)
+                ->where('user_id', auth()->id())
+                ->exists();
+
+            if ($existingSync) {
+                $this->googleCalendarService->updateEvent(auth()->user(), $habit);
+            } else {
+                $this->googleCalendarService->createEvent(auth()->user(), $habit);
+            }
+        }
+
+        if (! $habit->sync_to_google_calendar && $wasSyncEnabled) {
+            $this->googleCalendarService->deleteEvent(auth()->user(), $habit);
+        }
+
         // Si l'habitude vient d'être désactivée, on peut rediriger vers les archives
-        if (!$habit->is_active) {
+        if (! $habit->is_active) {
             return redirect()->route('habits.archives')
                 ->with('success', 'Habitude archivée avec succès.');
         }
@@ -105,6 +131,10 @@ class HabitController extends Controller
      */
     public function destroy(Habit $habit): RedirectResponse
     {
+        if (CalendarSync::where('habit_id', $habit->id)->where('user_id', auth()->id())->exists()) {
+            $this->googleCalendarService->deleteEvent(auth()->user(), $habit);
+        }
+
         $habit->delete();
 
         return redirect()->route('habits.index')
@@ -112,8 +142,8 @@ class HabitController extends Controller
     }
 
     /**
-    * Affiche les habitudes archivées (inactives).
-    */
+     * Affiche les habitudes archivées (inactives).
+     */
     public function archives(): View
     {
         $archivedHabits = auth()->user()->habits()

@@ -27,8 +27,10 @@ class StoreHabitRequest extends FormRequest
             'category_id' => 'required|exists:categories,id',
             'description' => 'nullable|string',
             'frequency' => 'required|in:daily,weekly,monthly',
+            'target_time' => 'nullable|date_format:H:i',
             'color' => 'required|string|regex:/^#[a-fA-F0-9]{6}$/',
             'is_active' => 'boolean',
+            'sync_to_google_calendar' => 'boolean',
         ];
     }
 

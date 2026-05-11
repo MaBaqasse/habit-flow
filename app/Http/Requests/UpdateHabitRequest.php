@@ -27,8 +27,10 @@ class UpdateHabitRequest extends FormRequest
             'description' => 'nullable|string',
             'category_id' => 'nullable|exists:categories,id',
             'frequency' => 'required_without:is_active|in:daily,weekly,monthly',
+            'target_time' => 'nullable|date_format:H:i',
             'color' => 'required_without:is_active|string|regex:/^#[a-fA-F0-9]{6}$/',
             'is_active' => 'boolean',
+            'sync_to_google_calendar' => 'boolean',
         ];
     }
 
