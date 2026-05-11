@@ -41,6 +41,9 @@ Route::middleware('auth')->group(function () {
 
     Route::get('auth/google/callback', [GoogleAuthController::class, 'callback'])
         ->name('auth.google.callback');
+
+    Route::post('auth/google/disconnect', [GoogleAuthController::class, 'disconnect'])
+        ->name('auth.google.disconnect');
 });
 
 require __DIR__.'/auth.php';

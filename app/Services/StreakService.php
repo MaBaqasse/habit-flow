@@ -40,13 +40,13 @@ class StreakService
             if ($lastDate && $lastDate->isYesterday()) {
                 // Si complété hier, on incrémente le streak
                 $streak->current_streak += 1;
-            } elseif (!$lastDate || !$lastDate->isToday()) {
+            } elseif (! $lastDate || ! $lastDate->isToday()) {
                 // Si c'est le premier log ou qu'on a sauté des jours, on reset à 1
                 $streak->current_streak = 1;
             }
 
             // Initialiser best_streak à 0 s'il n'existe pas
-            if (!$streak->best_streak) {
+            if (! $streak->best_streak) {
                 $streak->best_streak = 0;
             }
 

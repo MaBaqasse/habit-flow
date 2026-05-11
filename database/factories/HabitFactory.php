@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Habit;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -20,10 +21,10 @@ class HabitFactory extends Factory
         return [
             'name' => $this->faker->randomElement(['Méditer', 'Boire 2L d\'eau', 'Lire 10 pages', 'Sport', 'Révision Laravel']),
             'description' => $this->faker->sentence(),
-            'frequency' => \App\Models\Habit::FREQUENCY_DAILY, // Utilisation de ta constante
+            'frequency' => Habit::FREQUENCY_DAILY, // Utilisation de ta constante
             'color' => $this->faker->hexColor(),
             'is_active' => true,
-            'user_id' => \App\Models\User::factory(), // Crée un utilisateur si aucun n'est fourni
+            'user_id' => User::factory(), // Crée un utilisateur si aucun n'est fourni
         ];
     }
 }

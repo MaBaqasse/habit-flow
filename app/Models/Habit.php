@@ -17,15 +17,19 @@ class Habit extends Model
         'name',
         'description',
         'frequency',
+        'target_time',
         'color',
         'is_active',
+        'sync_to_google_calendar',
         'user_id',
         'category_id',
     ];
 
     // Constantes pour éviter les erreurs de frappe dans ton code
     const FREQUENCY_DAILY = 'daily';
+
     const FREQUENCY_WEEKLY = 'weekly';
+
     const FREQUENCY_MONTHLY = 'monthly';
 
     /**
@@ -74,5 +78,4 @@ class Habit extends Model
     {
         return $this->hasOne(Streak::class);
     }
-
 }
