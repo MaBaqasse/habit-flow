@@ -32,6 +32,16 @@ class RegisteredUserController extends Controller
             'password' => Hash::make($request->validated('password')),
         ]);
 
+        // Création des préférences par défaut (PRD conforme)
+        $user->notificationSettings()->create([
+            'email_reminder_enabled' => true,
+            'reminder_time' => '07:00:00',
+            'weekly_summary_enabled' => true,
+            'weekly_summary_day' => 6, // Samedi
+            'streak_alert_enabled' => true,
+            'email_digest_format' => 'summary',
+        ]);
+
         event(new Registered($user));
 
         Auth::login($user);

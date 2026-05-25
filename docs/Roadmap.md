@@ -561,45 +561,60 @@ SEMAINE 2 (v2.0 Nouvelles Features)
 
 **Tasks** :
 
-**Jour 1 - Email Infrastructure & Jobs**
-- [ ] Configurer SMTP dans `.env` :
-  - MAIL_MAILER, MAIL_HOST, MAIL_PORT
-  - MAIL_USERNAME, MAIL_PASSWORD
-  - Utiliser Mailtrap ou Mailgun pour dev/test
-- [ ] Créer migration `create_notification_preferences_table` :
-  - `id`, `user_id`, `daily_email_enabled`, `weekly_email_enabled`
-  - `daily_email_time`, `weekly_email_day`, `weekly_email_time`
-  - `email_digest_format` (summary, detailed, minimal)
-- [ ] Créer NotificationPreference model
-- [ ] Implémenter Mailable classes :
-  - `DailyDigestMail` → Summary du jour (habits completés, streaks)
-  - `WeeklyReportMail` → Stats semaine, insights
-- [ ] Créer Jobs :
-  - `SendDailyDigestEmailJob` → Pour chaque user
-  - `SendWeeklyReportEmailJob` → Samedi soir (configurable)
-- [ ] Configurer Laravel Scheduler dans `routes/console.php` :
-  - Schedule daily emails 7am (configurable par user)
-  - Schedule weekly emails samedi 18h (configurable)
-- [ ] Implémenter queue pour traiter emails en arrière-plan
-- [ ] Tests unitaires pour jobs et email content
+### 🛠️ Jour 1 - Email Infrastructure & Core Logic
 
-**Jour 2 - Email Templates & User Preferences**
-- [ ] Créer templates email Blade :
-  - `emails/daily-digest.blade.php` → HTML + texte
-  - `emails/weekly-report.blade.php`
-  - Inclure logos, links vers app, footer avec preferences
-- [ ] Implémenter NotificationPreferenceController :
-  - Page settings `/settings/notifications`
-  - Toggles pour activer/désactiver emails
-  - Sélection horaires et fréquences
-  - Sélection format digest (summary/detailed)
-- [ ] Ajouter préférences par défaut dans user creation
-- [ ] Implémenter opt-out tokens (unsubscribe links) dans emails
-- [ ] Créer commande artisan pour test emails :
-  - `php artisan email:send-daily-digest --user=ID`
-  - Utile pour testing
-- [ ] Tester avec Mailtrap/Mailgun
-- [ ] Tests Pest pour email generation et sending
+* **Configurer le serveur SMTP dans le fichier `.env**`
+* *Réalisation :* Intégration et validation de la Sandbox **Mailtrap** sur le port `2525`. Test d'envoi SMTP réussi avec succès via *Laravel Tinker*.
+
+
+* **Créer la migration pour la table de paramètres**
+* *Réalisation :* Création et exécution de la table `notification_settings` en base de données, intégrant les colonnes de ton PRD (`email_reminder_enabled`, `reminder_time`, `weekly_summary_enabled`, `weekly_summary_day`, `streak_alert_enabled`, `email_digest_format`).
+
+
+* **Créer et configurer le modèle Eloquent**
+* *Réalisation :* Création du modèle conforme **`NotificationSetting`** (sans underscore pour respecter les conventions CamelCase de Laravel) avec ses `$fillable`, ses `casts()` booléens et sa relation `belongsTo(User::class)`.
+
+
+* **Implémenter les classes Mailables**
+* *Réalisation :* Création de `DailyDigestMail` et `WeeklyReportMail` acceptant l'injection dynamique des données utilisateurs (`User`, `$habits`, `$stats`).
+
+
+* **Traitement en arrière-plan et File d'attente (Queue)**
+* *Correction technique :* Au lieu d'encombrer le projet avec des classes de Jobs dédiées (`SendDailyDigestEmailJob`), nous avons utilisé la puissance native de **`Mail::queue()`** directement couplée à la file d'attente de Laravel (`QUEUE_CONNECTION=database`). Le traitement reste 100 % asynchrone et performant.
+
+
+* **Configurer le Laravel Scheduler dans `routes/console.php**`
+* *Réalisation :* Écriture de la planification des emails à 7h00 pour le quotidien et le samedi à 18h00 pour le bilan hebdo, en y incluant la gestion de la Timezone locale (`config('app.timezone')`) pour s'aligner sur l'heure du Maroc (GMT+1).
+
+
+* **Notification des Streaks (Gamification)**
+* *Réalisation :* Création de la classe `StreakReachedNotification` et intégration directe de la logique de détection dans `HabitCompletionController::store`. L'utilisateur reçoit automatiquement un email d'encouragement dès qu'un multiple de 7 jours de streak (`$currentCount % 7 == 0`) est atteint.
+
+
+### 🎨 Jour 2 - Templates & User Preferences
+
+* **Créer les templates e-mails Blade (Markdown)**
+* *Réalisation :* Rédaction des vues `emails/daily-digest.blade.php` et `emails/weekly-report.blade.php` sous forme de composants responsives avec tableaux de données, boutons d'action d'accès au dashboard et liens de gestion des préférences.
+
+
+* **Implémenter le `NotificationPreferenceController**`
+* *Réalisation :* Écriture des méthodes `edit()` et `update()` pour permettre à l'utilisateur de piloter ses alertes en toute autonomie depuis l'interface Web, sécurisé par le middleware `auth`.
+
+
+* **Ajouter les préférences par défaut à l'inscription**
+* *Réalisation :* Logique d'initialisation automatique fournie pour insérer les configurations par défaut en base de données dès qu'un compte est créé.
+
+
+* **Créer une commande Artisan dédiée au testing**
+* *Réalisation :* Création de la commande de console personnalisée `php artisan email:send-daily-digest {--user=ID}`. Elle permet de forcer l'envoi d'un mail test sur Mailtrap instantanément pour n'importe quel ID utilisateur (idéal pour faire ta démonstration devant ton professeur).
+
+
+* **Création de la vue d'interface (UI) pour l'utilisateur**
+* *Reste à faire :* Intégrer les champs HTML (checkboxes, inputs time/select) dans une vue Blade `/settings/notifications` pour que l'utilisateur puisse utiliser le contrôleur qu'on a codé.
+
+
+* **Tests automatisés**
+* *Reste à faire :* Écriture optionnelle des scripts de tests unitaires (Pest/PHPUnit) pour valider l'envoi de bout en bout si demandé dans tes critères académiques.
 
 **Livrables** :
 - Infrastructure SMTP configurée

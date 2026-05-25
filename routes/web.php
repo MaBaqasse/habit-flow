@@ -7,6 +7,7 @@ use App\Http\Controllers\HabitController;
 use App\Http\Controllers\HabitStatsController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\NotificationPreferenceController;
 
 // Page d'accueil
 Route::get('/', function () {
@@ -44,6 +45,13 @@ Route::middleware('auth')->group(function () {
 
     Route::post('auth/google/disconnect', [GoogleAuthController::class, 'disconnect'])
         ->name('auth.google.disconnect');
-});
+
+        // Paramètres de notification
+        Route::get('/settings/notifications', [NotificationPreferenceController::class, 'edit'])->name('settings.notifications.edit');
+        Route::patch('/settings/notifications', [NotificationPreferenceController::class, 'update'])->name('settings.notifications.update');
+
+    });
+Route::get('/settings/notifications', [NotificationPreferenceController::class, 'edit'])->name('settings.notifications.edit');
+Route::patch('/settings/notifications', [NotificationPreferenceController::class, 'update'])->name('settings.notifications.update');
 
 require __DIR__.'/auth.php';
