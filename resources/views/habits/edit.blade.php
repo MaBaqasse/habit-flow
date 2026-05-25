@@ -69,7 +69,7 @@
                         @error('target_time')
                             <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                         @enderror
-                        <p class="mt-1 text-xs text-slate-500">L'heure préférée pour cette habitude</p>
+                        <p class="mt-1 text-xs text-slate-500">L'heure préférée pour cette habitude (Fuseau Horaire GMT)</p>
                     </div>
                 </div>
 

@@ -6,6 +6,7 @@ use App\Models\CalendarSync;
 use App\Models\Habit;
 use App\Services\GoogleCalendarService;
 use App\Services\StreakService;
+use App\Notifications\StreakReachedNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -16,7 +17,7 @@ class HabitCompletionController extends Controller
      */
     public function store(Request $request, Habit $habit, StreakService $streakService, GoogleCalendarService $googleCalendarService)
     {
-        // 1. Sécurité : Vérifier que l'habitude appartient bien à l'utilisateur connecté
+        // 1. Sécurité
         if ($habit->user_id !== Auth::id()) {
             abort(403, "Vous n'êtes pas autorisé à modifier cette habitude.");
         }
@@ -25,18 +26,31 @@ class HabitCompletionController extends Controller
             abort(403, 'Impossible de compléter une habitude archivée.');
         }
 
-        // 2. Optionnel : Valider la note si elle est fournie
         $validated = $request->validate([
             'note' => 'nullable|string|max:500',
         ]);
 
-        // 3. Appel au service pour gérer la logique complexe (HABIT_COMPLETION + STREAK)
+        // 2. Appel au service pour enregistrer la complétion (Met à jour le streak en DB)
         $streakService->recordCompletion(
             $habit,
             Auth::id(),
             $request->note
         );
 
+        // 3. Détection du palier de Streak & Envoi de la Notification Email
+        $streak = $habit->streak; // Récupère la relation de l'habitude
+        if ($streak) {
+            $currentCount = $streak->current_streak;
+            $user = Auth::user();
+            $settings = $user->notificationSettings; // Récupère les préférences de l'image PRD
+
+            // Si l'utilisateur a activé les alertes ET qu'on est sur un multiple de 7 (7, 14, 21...)
+            if ($settings && $settings->streak_alert_enabled && $currentCount >= 7 && $currentCount % 7 == 0) {
+                $user->notify(new StreakReachedNotification($habit, $currentCount));
+            }
+        }
+
+        // 4. Synchronisation Google Calendar (Ton code existant)
         if ($habit->sync_to_google_calendar && Auth::user()->google_calendar_sync_enabled) {
             $existingSync = CalendarSync::where('habit_id', $habit->id)
                 ->where('user_id', Auth::id())
@@ -49,7 +63,6 @@ class HabitCompletionController extends Controller
             }
         }
 
-        // 4. Retourner vers la page précédente avec un message de succès
-        return back()->with('success', 'Félicitations ! Habitude complétée et streak mis à jour.');
+        return back()->with('success', 'Félicitations ! Habitude complétée, streak mis à jour et notification vérifiée.');
     }
 }
