@@ -5,9 +5,10 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\HabitCompletionController;
 use App\Http\Controllers\HabitController;
 use App\Http\Controllers\HabitStatsController;
-use App\Http\Controllers\ProfileController;
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\NotificationPreferenceController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\StatisticsController;
+use Illuminate\Support\Facades\Route;
 
 // Page d'accueil
 Route::get('/', function () {
@@ -37,6 +38,10 @@ Route::middleware('auth')->group(function () {
     // Enregistrement d'une complétion (Check-in)
     Route::post('habits/{habit}/complete', [HabitCompletionController::class, 'store'])->name('habits.complete');
 
+    // Statistiques globales
+    Route::get('/statistics', [StatisticsController::class, 'index'])->name('statistics.index');
+    Route::post('/statistics/export-csv', [StatisticsController::class, 'exportCsv'])->name('statistics.export-csv');
+
     Route::get('auth/google', [GoogleAuthController::class, 'redirect'])
         ->name('auth.google.redirect');
 
@@ -46,11 +51,11 @@ Route::middleware('auth')->group(function () {
     Route::post('auth/google/disconnect', [GoogleAuthController::class, 'disconnect'])
         ->name('auth.google.disconnect');
 
-        // Paramètres de notification
-        Route::get('/settings/notifications', [NotificationPreferenceController::class, 'edit'])->name('settings.notifications.edit');
-        Route::patch('/settings/notifications', [NotificationPreferenceController::class, 'update'])->name('settings.notifications.update');
+    // Paramètres de notification
+    Route::get('/settings/notifications', [NotificationPreferenceController::class, 'edit'])->name('settings.notifications.edit');
+    Route::patch('/settings/notifications', [NotificationPreferenceController::class, 'update'])->name('settings.notifications.update');
 
-    });
+});
 Route::get('/settings/notifications', [NotificationPreferenceController::class, 'edit'])->name('settings.notifications.edit');
 Route::patch('/settings/notifications', [NotificationPreferenceController::class, 'update'])->name('settings.notifications.update');
 
